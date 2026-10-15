@@ -72,6 +72,7 @@ export default async function ProductCatalog() {
                                         fill
                                         sizes="(max-width: 768px) 100vw, 50vw"
                                         className="object-cover"
+                                        unoptimized={typeof imgSrc === 'string' && imgSrc.startsWith('data:')}
                                     />
                                 </div>
                             </div>

@@ -17,7 +17,7 @@ export async function getProductDetail(slug) {
 // Accepts public-folder paths, storage paths, full URLs, or bare filenames stored in NEXT_PUBLIC_IMAGES.
 export function assetSrc(path) {
     if (!path) return '';
-    if (/^https?:\/\//.test(path)) return path;
+    if (/^(?:https?:\/\/|data:)/.test(path)) return path;
 
     const encodedPath = (path.startsWith('/') ? path : `/${path}`).replace(/ /g, '%20');
     if (encodedPath.startsWith('/images/')) return encodedPath;

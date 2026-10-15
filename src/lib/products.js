@@ -27,4 +27,11 @@ export async function getProductBySlug(slug) {
     }
 }
 
-export const imageSrc = (image) => `${process.env.NEXT_PUBLIC_IMAGES}/${image}`;
+export const imageSrc = (image) => {
+    if (!image) return '';
+    if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:') || image.startsWith('/')) {
+        return image;
+    }
+    const base = (process.env.NEXT_PUBLIC_IMAGES || '').replace(/\/+$/, '');
+    return base ? `${base}/${image.replace(/^\/+/, '')}` : `/${image.replace(/^\/+/, '')}`;
+};
