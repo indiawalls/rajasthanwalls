@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import dbConnect from '@/lib/dbConnect';
 import SiteSetting from '@/models/SiteSetting.mjs';
@@ -56,6 +57,8 @@ export async function PUT(request) {
             { upsert: true, returnDocument: 'after' }
         );
 
+        revalidatePath('/');
+        revalidatePath('/contact');
         return auth.getResponse(NextResponse.json({ success: true, units: updated.value }));
     } catch (err) {
         console.error('Failed to save manufacturing units:', err);

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import dbConnect from '@/lib/dbConnect';
@@ -180,6 +181,9 @@ export async function POST(request) {
         await cleanupUploads();
         return NextResponse.json({ error: 'Project data could not be saved.' }, { status: 500 });
     }
+
+    revalidatePath('/');
+    revalidatePath('/projects');
 
     return getResponse(
         NextResponse.json(

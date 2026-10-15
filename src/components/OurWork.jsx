@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import AnimatedSection from './AnimatedSection';
 
-const projects = [
+const defaultProjects = [
     {
         title: 'Industrial Area, Chopanki, Bhiwadi',
         location: 'Bhiwadi, Rajasthan',
@@ -38,7 +38,8 @@ const projects = [
     },
 ];
 
-export default function OurWorkAccordion() {
+export default function OurWorkAccordion({ initialProjects = [] }) {
+    const activeProjects = (initialProjects && initialProjects.length > 0 ? initialProjects : defaultProjects).slice(0, 6);
     const [activeIndex, setActiveIndex] = useState(0);
 
     return (
@@ -56,8 +57,11 @@ export default function OurWorkAccordion() {
 
                 {/* ACCORDION CONTAINER */}
                 <div className="flex flex-col lg:flex-row gap-4 h-[600px] lg:h-[480px] w-full">
-                    {projects.map((project, idx) => {
+                    {activeProjects.map((project, idx) => {
                         const isActive = activeIndex === idx;
+                        const imgSrc = project.image?.startsWith('http') || project.image?.startsWith('/')
+                            ? project.image
+                            : `${process.env.NEXT_PUBLIC_IMAGES}/${project.image || 'another-precast-project.webp'}`;
 
                         return (
                             <motion.div
@@ -79,7 +83,7 @@ export default function OurWorkAccordion() {
                             >
                                 {/* BACKGROUND IMAGE */}
                                 <Image
-                                    src={project.image}
+                                    src={imgSrc}
                                     alt={project.title}
                                     fill
                                     priority={idx === 0}

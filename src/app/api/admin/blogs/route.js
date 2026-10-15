@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import dbConnect from '@/lib/dbConnect';
 import BlogPost from '@/models/BlogPost.mjs';
@@ -55,6 +56,8 @@ export async function POST(request) {
             publishedAt: new Date(),
         });
 
+        revalidatePath('/');
+        revalidatePath('/blog');
         return auth.getResponse(NextResponse.json({ success: true, blog }, { status: 201 }));
     } catch (err) {
         console.error('Failed to create blog post:', err);
@@ -84,6 +87,8 @@ export async function PATCH(request) {
         if (typeof published === 'boolean') updateData.published = published;
 
         const updated = await BlogPost.findByIdAndUpdate(id, updateData, { new: true });
+        revalidatePath('/');
+        revalidatePath('/blog');
         return auth.getResponse(NextResponse.json({ success: true, blog: updated }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to update blog post' }, { status: 500 });
@@ -101,6 +106,8 @@ export async function DELETE(request) {
 
         await dbConnect();
         await BlogPost.findByIdAndDelete(id);
+        revalidatePath('/');
+        revalidatePath('/blog');
         return auth.getResponse(NextResponse.json({ success: true, message: 'Blog deleted' }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to delete blog' }, { status: 500 });

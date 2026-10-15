@@ -10,6 +10,9 @@ export const metadata = {
         'Get in touch with Indiawalls Infratech for factory quotes on precast boundary walls, RCC fencing poles, chainlink mesh, and paver blocks. Call +91 9950711475.',
 };
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function ContactPage() {
     const contactSettings = (await getSiteSettings('contact_info')) || fallbackContactInfo;
     const businessHours = (await getSiteSettings('business_hours')) || {

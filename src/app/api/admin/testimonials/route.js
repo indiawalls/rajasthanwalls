@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import dbConnect from '@/lib/dbConnect';
 import Testimonial from '@/models/Testimonial.mjs';
@@ -39,6 +40,7 @@ export async function POST(request) {
             order: 0,
         });
 
+        revalidatePath('/');
         return auth.getResponse(NextResponse.json({ success: true, testimonial: item }, { status: 201 }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to create testimonial' }, { status: 500 });
@@ -66,6 +68,7 @@ export async function PATCH(request) {
         if (location !== undefined) updateData.location = location.trim();
 
         const updated = await Testimonial.findByIdAndUpdate(id, updateData, { new: true });
+        revalidatePath('/');
         return auth.getResponse(NextResponse.json({ success: true, testimonial: updated }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to update testimonial' }, { status: 500 });
@@ -83,6 +86,7 @@ export async function DELETE(request) {
 
         await dbConnect();
         await Testimonial.findByIdAndDelete(id);
+        revalidatePath('/');
         return auth.getResponse(NextResponse.json({ success: true, message: 'Testimonial deleted' }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to delete testimonial' }, { status: 500 });

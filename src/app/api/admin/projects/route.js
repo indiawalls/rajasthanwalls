@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import dbConnect from '@/lib/dbConnect';
 import Project from '@/models/Project.mjs';
@@ -36,6 +37,8 @@ export async function PATCH(request) {
         if (category) updateData.category = category.trim();
 
         const updated = await Project.findByIdAndUpdate(id, updateData, { new: true });
+        revalidatePath('/');
+        revalidatePath('/projects');
         return auth.getResponse(NextResponse.json({ success: true, project: updated }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
@@ -66,6 +69,8 @@ export async function DELETE(request) {
         }
 
         await Project.findByIdAndDelete(id);
+        revalidatePath('/');
+        revalidatePath('/projects');
         return auth.getResponse(NextResponse.json({ success: true, message: 'Project deleted' }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });

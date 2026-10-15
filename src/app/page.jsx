@@ -1,47 +1,49 @@
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AnimatedSection from "@/components/AnimatedSection";
 
-const ProductCatalog = dynamic(() => import("@/components/ProductCatalog"));
-const WhyUsSection = dynamic(() => import("@/components/WhyUsSection"));
-const AboutSection = dynamic(() => import("@/components/AboutSection"));
-const ProjectProcess = dynamic(() => import("@/components/ProjectProcess"));
-const BenefitsSection = dynamic(() => import("@/components/BenefitsSection"));
-const OurWorkMinimal = dynamic(() => import("@/components/OurWork"));
-const ClienteleSection = dynamic(() => import("@/components/ClientelSection"));
+const ProductCatalog = nextDynamic(() => import("@/components/ProductCatalog"));
+const WhyUsSection = nextDynamic(() => import("@/components/WhyUsSection"));
+const AboutSection = nextDynamic(() => import("@/components/AboutSection"));
+const ProjectProcess = nextDynamic(() => import("@/components/ProjectProcess"));
+const BenefitsSection = nextDynamic(() => import("@/components/BenefitsSection"));
+const OurWorkMinimal = nextDynamic(() => import("@/components/OurWork"));
+const ClienteleSection = nextDynamic(() => import("@/components/ClientelSection"));
 
-const ManufacturingUnits = dynamic(
+const ManufacturingUnits = nextDynamic(
   () => import("@/components/ManufacturingUnits"),
   {
     loading: () => <div className="h-96 bg-slate-100 animate-pulse rounded-2xl my-8" />,
   }
 );
 
-const TestimonialsSection = dynamic(
+const TestimonialsSection = nextDynamic(
   () => import("@/components/TestimonialsSection")
 );
 
-const FaqSection = dynamic(
+const FaqSection = nextDynamic(
   () => import("@/components/FaqSection")
 );
 
-const Footer = dynamic(
+const Footer = nextDynamic(
   () => import("@/components/Footer")
 );
 
-const BlogSection = dynamic(
+const BlogSection = nextDynamic(
   () => import("@/components/BlogSection")
 );
 
 import { getFaqs } from "@/lib/api/getFaqs";
+import { getProjects } from "@/lib/api/getProjects";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function Home() {
-  const faqs = await getFaqs();
+  const [faqs, projects] = await Promise.all([getFaqs(), getProjects()]);
   return (
     <>
       <SpeedInsights />
@@ -57,7 +59,7 @@ export default async function Home() {
         <HeroSection />
         <main className="home-wall-background">
           <ProductCatalog />
-          <OurWorkMinimal />
+          <OurWorkMinimal initialProjects={projects} />
           <ClienteleSection />
           <ManufacturingUnits />
           <WhyUsSection />

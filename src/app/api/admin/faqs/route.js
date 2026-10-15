@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import dbConnect from '@/lib/dbConnect';
 import Faq from '@/models/Faq.mjs';
@@ -38,6 +39,7 @@ export async function POST(request) {
             published: true,
         });
 
+        revalidatePath('/');
         return auth.getResponse(NextResponse.json({ success: true, faq }, { status: 201 }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to create FAQ' }, { status: 500 });
@@ -63,6 +65,7 @@ export async function PATCH(request) {
         if (typeof order === 'number') updateData.order = order;
 
         const updated = await Faq.findByIdAndUpdate(id, updateData, { new: true });
+        revalidatePath('/');
         return auth.getResponse(NextResponse.json({ success: true, faq: updated }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to update FAQ' }, { status: 500 });
@@ -80,6 +83,7 @@ export async function DELETE(request) {
 
         await dbConnect();
         await Faq.findByIdAndDelete(id);
+        revalidatePath('/');
         return auth.getResponse(NextResponse.json({ success: true, message: 'FAQ deleted' }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to delete FAQ' }, { status: 500 });

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import dbConnect from '@/lib/dbConnect';
 import Product from '@/models/Product.mjs';
@@ -41,6 +42,8 @@ export async function POST(request) {
             published: typeof published === 'boolean' ? published : true,
         });
 
+        revalidatePath('/');
+        revalidatePath('/products');
         return auth.getResponse(NextResponse.json({ success: true, product }));
     } catch (err) {
         if (err.code === 11000) {
@@ -74,6 +77,8 @@ export async function PATCH(request) {
         }
 
         const updated = await Product.findByIdAndUpdate(id, updateData, { new: true });
+        revalidatePath('/');
+        revalidatePath('/products');
         return auth.getResponse(NextResponse.json({ success: true, product: updated }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
@@ -91,6 +96,8 @@ export async function DELETE(request) {
 
         await dbConnect();
         await Product.findByIdAndDelete(id);
+        revalidatePath('/');
+        revalidatePath('/products');
         return auth.getResponse(NextResponse.json({ success: true, message: 'Product deleted' }));
     } catch (err) {
         return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });

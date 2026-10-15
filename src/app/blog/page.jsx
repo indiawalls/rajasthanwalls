@@ -6,7 +6,8 @@ import dbConnect from '@/lib/dbConnect';
 import mongoose from 'mongoose';
 import { blogPosts as fallbackBlogs } from '@/data/blogs';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata = {
     title: 'Precast Boundary Walls & Concrete Engineering Blog | Rajasthanwall Infratech',

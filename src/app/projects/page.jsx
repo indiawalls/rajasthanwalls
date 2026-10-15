@@ -3,7 +3,8 @@ import Navbar from '@/components/Navbar';
 import ProjectsGrid from '@/components/ProjectsGrid';
 import { getProjects } from '@/lib/api/getProjects';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 export const metadata = {
     title: 'Project Gallery & Completed Works | Rajasthanwall Infratech',
     description:

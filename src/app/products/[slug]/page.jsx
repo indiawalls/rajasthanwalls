@@ -5,7 +5,8 @@ import Navbar from '@/components/Navbar';
 import { getProductDetail, assetSrc } from '@/lib/api/getProductDetails';
 import { getProductBySlug, getProducts, imageSrc } from '@/lib/products';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const PHONE_DISPLAY = '+91 9950711475';
 const PHONE_HREF = 'tel:+919950711475';
