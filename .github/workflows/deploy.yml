@@ -1,0 +1,62 @@
+name: Build and Deploy to Production Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy via SSH to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Remote Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Starting deployment on production server..."
+
+            # Navigate to project directory
+            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH || '/var/www/rajasthanwall' }}"
+            if [ ! -d "$DEPLOY_PATH" ]; then
+              echo "Error: Directory $DEPLOY_PATH does not exist. Please clone the repository first."
+              exit 1
+            fi
+
+            cd "$DEPLOY_PATH"
+
+            echo "📦 Pulling latest changes from git..."
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "🐳 Building and starting Docker containers..."
+            docker compose build --pull
+            docker compose up -d --remove-orphans
+
+            echo "🧹 Cleaning up old unused Docker images..."
+            docker image prune -f
+
+            echo "🩺 Verifying container health..."
+            sleep 10
+            docker compose ps
+            curl -f http://127.0.0.1:3000/api/health || {
+              echo "❌ Health check failed!"
+              docker compose logs --tail=50 app
+              exit 1
+            }
+
+            echo "✅ Deployment completed successfully!"

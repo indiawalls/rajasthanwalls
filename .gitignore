@@ -1,0 +1,71 @@
+# ==============================================================================
+# Rajasthanwall - Production .gitignore
+# Excludes internal docs, logs, build artifacts, environments, and editor configs
+# ==============================================================================
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Next.js Build & Outputs
+/.next/
+/out/
+/build
+*.tsbuildinfo
+next-env.d.ts
+
+# Testing & Coverage
+/coverage
+
+# Environment & Secret Files (Keep .env.example for server reference)
+.env*.local
+.env
+.env.production
+.env.development
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Documentation & Internal Roadmap/Audit Markdown Files
+*.md
+!README.md
+audit_and_dynamic_admin_roadmap.md
+audit_and_dynamic_admin_roadmap copy.md
+CLAUDE.md
+AGENTS.md
+
+# Scratch, Test Scripts & Temporary Files
+/scratch/
+/tmp/
+/temp/
+/.cache/
+
+# Debug Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS & Filesystem Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor Directories
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Cloud / Hosting Artifacts
+.vercel
