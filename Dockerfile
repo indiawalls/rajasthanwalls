@@ -16,8 +16,8 @@ COPY . .
 
 # Build arguments for public env variables (inlined into client bundle)
 ARG NEXT_PUBLIC_SITE_URL=https://rajasthanwall.com
-ARG NEXT_PUBLIC_IMAGES=https://rajasthanwall.com/images
-ARG NEXT_PUBLIC_WHATSAPP_NUMBER=919950711475
+ARG NEXT_PUBLIC_IMAGES=https://srhkwaayhgpqodjokhii.supabase.co/storage/v1/object/public/RajasthanWalls-Images
+ARG NEXT_PUBLIC_WHATSAPP_NUMBER=917820879777
 
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_IMAGES=$NEXT_PUBLIC_IMAGES
