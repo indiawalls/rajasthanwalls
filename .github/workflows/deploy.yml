@@ -31,10 +31,12 @@ jobs:
             echo "🚀 Starting deployment on production server..."
 
             # Navigate to project directory
-            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH || '/var/www/rajasthanwall' }}"
+            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH}}"
+
             if [ ! -d "$DEPLOY_PATH" ]; then
-              echo "Error: Directory $DEPLOY_PATH does not exist. Please clone the repository first."
-              exit 1
+              echo "📁 Directory $DEPLOY_PATH does not exist. Creating directory and cloning repository..."
+              mkdir -p "$(dirname "$DEPLOY_PATH")"
+              git clone https://github.com/indiawalls/rajasthanwalls.git "$DEPLOY_PATH"
             fi
 
             cd "$DEPLOY_PATH"
