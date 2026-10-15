@@ -5,6 +5,7 @@ const cspHeader = `
     img-src 'self' blob: data: https://*.supabase.co https://*.gstatic.com https://*.googleapis.com https://images.unsplash.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.openstreetmap.org https://unpkg.com;
     font-src 'self' https://fonts.gstatic.com data:;
     connect-src 'self' https://*.supabase.co https://*.googleapis.com https://api.resend.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org;
+    frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com;
     frame-ancestors 'none';
     base-uri 'self';
     form-action 'self';
