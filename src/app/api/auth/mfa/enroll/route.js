@@ -21,7 +21,8 @@ export async function POST(request) {
 
     const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName: `Authenticator ${Date.now()}`,
+        issuer: 'RajasthanWall',
+        friendlyName: 'RajasthanWall Admin',
     });
 
     if (error) {

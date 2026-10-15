@@ -80,19 +80,20 @@ export async function middleware(req) {
 
     // STEP 1A: Password correct, but must setup MFA first
     if (needsEnrollment) {
-        if (pathname === "/mfa/setup" || pathname === "/mfa/reset") {
+        if (pathname === "/mfa/setup") {
             return getResponse();
         }
+        // If user tries to access /mfa/reset, /mfa, or dashboard, lock them strictly to /mfa/setup
         return NextResponse.redirect(new URL("/mfa/setup", req.url));
     }
 
     // STEP 1B: Password correct, but must verify 2FA TOTP code
     if (needsVerify) {
-        // Allowed on /mfa, /mfa/reset (emergency OTP), and /mfa/setup (re-enrollment)
-        if (pathname === "/mfa" || pathname === "/mfa/reset" || pathname === "/mfa/setup") {
+        // Allowed on /mfa, or /mfa/reset (emergency OTP)
+        if (pathname === "/mfa" || pathname === "/mfa/reset") {
             return getResponse();
         }
-        // Any attempt to skip directly to /admin/dashboard is blocked and bounced back to /mfa
+        // Any attempt to skip to /mfa/setup or /admin/dashboard is blocked and bounced back to /mfa
         return NextResponse.redirect(new URL("/mfa", req.url));
     }
 

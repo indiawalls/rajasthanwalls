@@ -14,6 +14,16 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
     }
 
+    // Lock endpoint: Only users with an active verified factor can request a reset OTP
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const hasVerifiedFactor = factors?.all?.some((f) => f.status === 'verified');
+    if (!hasVerifiedFactor) {
+        return NextResponse.json(
+            { error: 'No active MFA factor found to reset. Please set up 2FA at /mfa/setup.' },
+            { status: 400 }
+        );
+    }
+
     await dbConnect();
     let tracker = await AuthSecurityTracker.findOne({ identifier: user.email.toLowerCase() });
     if (!tracker) {

@@ -26,6 +26,16 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
     }
 
+    // Lock endpoint: Only users with an active verified factor can reset
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const hasVerifiedFactor = factors?.all?.some((f) => f.status === 'verified');
+    if (!hasVerifiedFactor) {
+        return NextResponse.json(
+            { error: 'No active MFA factor to reset.' },
+            { status: 400 }
+        );
+    }
+
     await dbConnect();
     const tracker = await AuthSecurityTracker.findOne({ identifier: user.email.toLowerCase() });
 
