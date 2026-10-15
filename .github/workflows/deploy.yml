@@ -55,7 +55,7 @@ jobs:
             echo "🩺 Verifying container health..."
             sleep 10
             docker compose ps
-            curl -f http://127.0.0.1:3000/api/health || {
+            curl -f http://127.0.0.1:3006/api/health || {
               echo "❌ Health check failed!"
               docker compose logs --tail=50 app
               exit 1

@@ -13,8 +13,8 @@ services:
     container_name: rajasthanwall-app
     restart: unless-stopped
     ports:
-      # Exposes port 3000 to the host (or bind to 127.0.0.1:3000:3000 for local Nginx reverse proxy)
-      - "3000:3000"
+      # Exposes port 3006 on host (localhost only for Nginx reverse proxy) to container port 3000
+      - "127.0.0.1:3006:3000"
     env_file:
       - .env
     environment:
