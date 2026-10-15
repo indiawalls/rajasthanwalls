@@ -16,7 +16,7 @@ services:
       # Exposes port 3006 on host (localhost only for Nginx reverse proxy) to container port 3000
       - "127.0.0.1:3006:3000"
     env_file:
-      - .env
+      - .env.local
     environment:
       - NODE_ENV=production
       - PORT=3000
