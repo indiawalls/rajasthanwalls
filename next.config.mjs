@@ -2,9 +2,9 @@ const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.gstatic.com https://*.googleapis.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://*.supabase.co https://*.gstatic.com https://*.googleapis.com https://images.unsplash.com;
+    img-src 'self' blob: data: https://*.supabase.co https://*.gstatic.com https://*.googleapis.com https://images.unsplash.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.openstreetmap.org https://unpkg.com;
     font-src 'self' https://fonts.gstatic.com data:;
-    connect-src 'self' https://*.supabase.co https://*.googleapis.com https://api.resend.com;
+    connect-src 'self' https://*.supabase.co https://*.googleapis.com https://api.resend.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org;
     frame-ancestors 'none';
     base-uri 'self';
     form-action 'self';
@@ -22,6 +22,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.tile.openstreetmap.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tile.openstreetmap.org',
       }
     ],
   },
