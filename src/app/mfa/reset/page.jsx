@@ -8,6 +8,7 @@ import Link from 'next/link';
 export default function MfaResetPage() {
     const [otp, setOtp] = useState('');
     const [status, setStatus] = useState({ loading: false, error: '', success: false });
+    const [resendStatus, setResendStatus] = useState({ loading: false, message: '' });
     const [isCancelling, setIsCancelling] = useState(false);
     const router = useRouter();
     const autoSentRef = useRef(false);
