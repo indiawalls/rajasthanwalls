@@ -14,8 +14,7 @@ const PHONE_HREF = 'tel:+919950711475';
 const icons = { zap: Zap, shield: ShieldCheck, coins: Coins, ruler: Ruler, pin: Pin, rain: CloudRain, strength: Dumbbell, truck: Truck, wrench: Wrench };
 
 export async function generateStaticParams() {
-    const products = await getProducts();
-    return products.map((p) => ({ slug: p.slug }));
+    return [];
 }
 
 export async function generateMetadata({ params }) {

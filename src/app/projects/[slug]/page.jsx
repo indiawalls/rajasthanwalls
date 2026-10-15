@@ -11,11 +11,11 @@ export async function generateMetadata({ params }) {
     const project = await getProjectBySlug(slug);
 
     if (!project) {
-        return { title: 'Project not found | Indiawalls Infratech' };
+        return { title: 'Project not found | Rajasthanwall Infratech' };
     }
 
     return {
-        title: `${project.title} | Indiawalls Infratech`,
+        title: `${project.title} | Rajasthanwall Infratech`,
         description: project.description,
     };
 }

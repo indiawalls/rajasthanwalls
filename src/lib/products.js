@@ -7,16 +7,24 @@ const FIELDS = 'title slug badge description longDescription image specs order';
 const toPlain = ({ _id, ...rest }) => ({ id: String(_id), ...rest });
 
 export async function getProducts() {
-    await dbConnect();
-    const docs = await Product.find({ published: true }).sort({ order: 1 }).select(FIELDS).lean();
-    return docs.map(toPlain);
+    try {
+        await dbConnect();
+        const docs = await Product.find({ published: true }).sort({ order: 1 }).select(FIELDS).lean();
+        return docs.map(toPlain);
+    } catch {
+        return [];
+    }
 }
 
 export async function getProductBySlug(slug) {
     if (typeof slug !== 'string') return null;
-    await dbConnect();
-    const doc = await Product.findOne({ slug: slug.toLowerCase(), published: true }).select(FIELDS).lean();
-    return doc ? toPlain(doc) : null;
+    try {
+        await dbConnect();
+        const doc = await Product.findOne({ slug: slug.toLowerCase(), published: true }).select(FIELDS).lean();
+        return doc ? toPlain(doc) : null;
+    } catch {
+        return null;
+    }
 }
 
 export const imageSrc = (image) => `${process.env.NEXT_PUBLIC_IMAGES}/${image}`;

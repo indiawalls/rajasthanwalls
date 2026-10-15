@@ -1,15 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+let _instance = null;
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-    console.warn('Warning: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not defined in environment variables.');
+function getSupabaseAdmin() {
+    if (_instance) return _instance;
+    const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
+    _instance = createClient(supabaseUrl, supabaseServiceRoleKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+        },
+    });
+    return _instance;
 }
 
-export const supabaseAdmin = createClient(supabaseUrl || '', supabaseServiceRoleKey || '', {
-    auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-    },
+export const supabaseAdmin = new Proxy({}, {
+    get(target, prop) {
+        return getSupabaseAdmin()[prop];
+    }
 });

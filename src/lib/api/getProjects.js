@@ -14,19 +14,24 @@ function toProjectData({ _id, image, gallery = [], ...rest }) {
 }
 
 export async function getProjects() {
-    await dbConnect();
-    const docs = await Project.find({ published: true }).sort({ order: 1 }).select(FIELDS).lean();
-
-    return docs.map(toProjectData);
+    try {
+        await dbConnect();
+        const docs = await Project.find({ published: true }).sort({ order: 1 }).select(FIELDS).lean();
+        return docs.map(toProjectData);
+    } catch {
+        return [];
+    }
 }
 
 export async function getProjectBySlug(slug) {
     if (typeof slug !== 'string' || !slug) return null;
-
-    await dbConnect();
-    const doc = await Project.findOne({ slug: slug.toLowerCase(), published: true })
-        .select(FIELDS)
-        .lean();
-
-    return doc ? toProjectData(doc) : null;
+    try {
+        await dbConnect();
+        const doc = await Project.findOne({ slug: slug.toLowerCase(), published: true })
+            .select(FIELDS)
+            .lean();
+        return doc ? toProjectData(doc) : null;
+    } catch {
+        return null;
+    }
 }
