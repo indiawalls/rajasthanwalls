@@ -31,15 +31,23 @@ jobs:
             echo "🚀 Starting deployment on production server..."
 
             # Navigate to project directory
-            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH}}"
+            DEPLOY_PATH="${{ secrets.SERVER_DEPLOY_PATH || '/home/deployer/apps/rajasthanwall' }}"
 
-            if [ ! -d "$DEPLOY_PATH" ]; then
-              echo "📁 Directory $DEPLOY_PATH does not exist. Creating directory and cloning repository..."
-              mkdir -p "$(dirname "$DEPLOY_PATH")"
-              git clone https://github.com/indiawalls/rajasthanwalls.git "$DEPLOY_PATH"
+            # Check if directory has git repository initialized
+            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+              echo "📁 Git repository not found in $DEPLOY_PATH. Initializing..."
+              if [ -d "$DEPLOY_PATH" ]; then
+                cd "$DEPLOY_PATH"
+                git init -b main
+                git remote add origin https://github.com/indiawalls/rajasthanwalls.git || git remote set-url origin https://github.com/indiawalls/rajasthanwalls.git
+              else
+                mkdir -p "$(dirname "$DEPLOY_PATH")"
+                git clone https://github.com/indiawalls/rajasthanwalls.git "$DEPLOY_PATH"
+                cd "$DEPLOY_PATH"
+              fi
+            else
+              cd "$DEPLOY_PATH"
             fi
-
-            cd "$DEPLOY_PATH"
 
             echo "📦 Pulling latest changes from git..."
             git fetch --all
