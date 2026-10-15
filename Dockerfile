@@ -14,14 +14,16 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build arguments for public env variables (inlined into client bundle from .env.local)
+# Build arguments for env variables (inlined/used during next build)
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_IMAGES
 ARG NEXT_PUBLIC_WHATSAPP_NUMBER
+ARG MONGODB_URI
 
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_IMAGES=$NEXT_PUBLIC_IMAGES
 ENV NEXT_PUBLIC_WHATSAPP_NUMBER=$NEXT_PUBLIC_WHATSAPP_NUMBER
+ENV MONGODB_URI=$MONGODB_URI
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 

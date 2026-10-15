@@ -1,13 +1,11 @@
 import dns from "node:dns";
 import mongoose from "mongoose";
 
-// Resolve MongoDB Atlas SRV records via reliable public DNS in development only
+// Resolve MongoDB Atlas SRV / replica records via reliable public DNS
 try {
-    if (process.env.NODE_ENV !== 'production') {
-        dns.setServers(["8.8.8.8", "1.1.1.1"]);
-    }
+    dns.setServers(["8.8.8.8", "1.1.1.1"]);
 } catch (e) {
-    // Ignore in non-Node or restricted environments
+    // Ignore in restricted environments
 }
 
 let cached = global.mongoose;
