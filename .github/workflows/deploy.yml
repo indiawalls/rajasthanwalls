@@ -53,9 +53,14 @@ jobs:
             git fetch --all
             git reset --hard origin/main
 
+            # Ensure .env exists by linking .env.local if present
+            if [ -f .env.local ]; then
+              ln -sf .env.local .env
+            fi
+
             echo "🐳 Building and starting Docker containers..."
-            docker compose build --pull
-            docker compose up -d --remove-orphans
+            docker compose --env-file .env.local build --pull
+            docker compose --env-file .env.local up -d --remove-orphans
 
             echo "🧹 Cleaning up old unused Docker images..."
             docker image prune -f
