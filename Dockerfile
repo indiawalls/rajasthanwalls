@@ -14,10 +14,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build arguments for public env variables (inlined into client bundle)
-ARG NEXT_PUBLIC_SITE_URL=https://rajasthanwall.com
-ARG NEXT_PUBLIC_IMAGES=https://srhkwaayhgpqodjokhii.supabase.co/storage/v1/object/public/RajasthanWalls-Images
-ARG NEXT_PUBLIC_WHATSAPP_NUMBER=917820879777
+# Build arguments for public env variables (inlined into client bundle from .env.local)
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_IMAGES
+ARG NEXT_PUBLIC_WHATSAPP_NUMBER
 
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_IMAGES=$NEXT_PUBLIC_IMAGES

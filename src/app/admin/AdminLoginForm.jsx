@@ -36,7 +36,8 @@ export default function AdminLoginForm({ callbackUrl }) {
             }
 
         } catch (requestError) {
-            setError(requestError.response?.data?.error || 'Unable to sign in. Please try again.');
+            const apiMsg = requestError.response?.data?.error || requestError.response?.data?.message || requestError.message;
+            setError(apiMsg || 'Unable to sign in. Please try again.');
         } finally {
             setIsLoading(false);
         }

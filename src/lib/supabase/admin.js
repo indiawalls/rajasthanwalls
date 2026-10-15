@@ -4,8 +4,8 @@ let _instance = null;
 
 function getSupabaseAdmin() {
     if (_instance) return _instance;
-    const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     _instance = createClient(supabaseUrl, supabaseServiceRoleKey, {
         auth: {
             autoRefreshToken: false,
