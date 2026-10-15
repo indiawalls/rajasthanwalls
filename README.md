@@ -1,8 +1,8 @@
-# Indiawalls Infratech — Official Website
+# Rajasthanwall Infratech — Official Website
 
-Modern, high-performance web platform for **Indiawalls Infratech Private Limited**, built with **Next.js 14 (App Router)** and **Tailwind CSS**. 
+Modern, high-performance web platform for **Rajasthanwall Infratech Private Limited**, built with **Next.js 14 (App Router)** and **Tailwind CSS**. 
 
-This platform showcases Indiawalls' precast RCC compound walls, folding boundary walls, and heavy-duty paver block solutions, serving industrial, commercial, and agricultural clients across Delhi NCR and Rajasthan.
+This platform showcases Rajasthanwall' precast RCC compound walls, folding boundary walls, and heavy-duty paver block solutions, serving industrial, commercial, and agricultural clients across Delhi NCR and Rajasthan.
 
 ---
 
@@ -31,7 +31,7 @@ This platform showcases Indiawalls' precast RCC compound walls, folding boundary
 ## 📂 Project Structure
 
 ```text
-indiawalls/
+Rajasthanwall/
 ├── public/
 │   └── images/
 │       ├── clients/         # Client logo assets (tata.png, adani.png, etc.)
