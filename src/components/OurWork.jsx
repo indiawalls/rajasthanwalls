@@ -59,7 +59,7 @@ export default function OurWorkAccordion({ initialProjects = [] }) {
                 <div className="flex flex-col lg:flex-row gap-4 h-[600px] lg:h-[480px] w-full">
                     {activeProjects.map((project, idx) => {
                         const isActive = activeIndex === idx;
-                        const imgSrc = project.image?.startsWith('http') || project.image?.startsWith('/')
+                        const imgSrc = project.image?.startsWith('http') || project.image?.startsWith('/') || project.image?.startsWith('data:')
                             ? project.image
                             : `${process.env.NEXT_PUBLIC_IMAGES}/${project.image || 'another-precast-project.webp'}`;
 
@@ -90,6 +90,7 @@ export default function OurWorkAccordion({ initialProjects = [] }) {
                                     className={`object-cover transition-transform duration-700 ease-out ${isActive ? 'scale-105' : 'scale-100 grayscale-[25%]'
                                         }`}
                                     sizes="(max-width: 1024px) 100vw, 50vw"
+                                    unoptimized={typeof imgSrc === 'string' && imgSrc.startsWith('data:')}
                                 />
 
                                 {/* OVERLAY GRADIENT */}
