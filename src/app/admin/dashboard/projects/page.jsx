@@ -14,10 +14,8 @@ import {
     Pencil,
     X,
     CheckCircle2,
-    UploadCloud,
     HardDrive,
     Cloud,
-    Layers,
 } from 'lucide-react';
 
 const COMMON_CATEGORIES = [
@@ -33,26 +31,9 @@ const COMMON_CATEGORIES = [
 export default function ProjectsAdminPage() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [feedback, setFeedback] = useState({ text: '', type: '' });
-
-    // Add Form State
-    const [formData, setFormData] = useState({
-        title: '',
-        category: 'Precast Boundary Walls',
-        location: '',
-        description: '',
-        longDescription: '',
-        order: 0,
-        published: true,
-    });
-    const [addImageFile, setAddImageFile] = useState(null);
-    const [addImagePreview, setAddImagePreview] = useState('');
-    const [addManualImage, setAddManualImage] = useState('');
-    const [addUseManual, setAddUseManual] = useState(false);
-    const addFileInputRef = useRef(null);
 
     // Edit Form State
     const [editFormData, setEditFormData] = useState({
@@ -90,43 +71,23 @@ export default function ProjectsAdminPage() {
     // Cleanup object URLs on unmount
     useEffect(() => {
         return () => {
-            if (addImagePreview && addImagePreview.startsWith('blob:')) {
-                URL.revokeObjectURL(addImagePreview);
-            }
             if (editImagePreview && editImagePreview.startsWith('blob:')) {
                 URL.revokeObjectURL(editImagePreview);
             }
         };
-    }, [addImagePreview, editImagePreview]);
+    }, [editImagePreview]);
 
-    function resolveImageSrc(img) {
-        if (!img) return '';
-        if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:') || img.startsWith('/')) {
-            return img;
-        }
-        const prefix = (process.env.NEXT_PUBLIC_IMAGES || '').replace(/\/+$/, '');
-        return prefix ? `${prefix}/${img.replace(/^\/+/, '')}` : `/${img.replace(/^\/+/, '')}`;
+    function resolveImageSrc(path) {
+        if (!path) return '';
+        if (/^(?:https?:\/\/|data:)/.test(path)) return path;
+
+        const encodedPath = (path.startsWith('/') ? path : `/${path}`).replace(/ /g, '%20');
+        if (encodedPath.startsWith('/images/')) return encodedPath;
+
+        const imageBaseUrl = (process.env.NEXT_PUBLIC_IMAGES || '').replace(/\/+$/, '');
+        return imageBaseUrl ? `${imageBaseUrl}${encodedPath}` : encodedPath;
     }
 
-    // Handle file selection for Add Modal
-    function handleAddFileSelect(file) {
-        if (!file) return;
-        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-            setFeedback({ text: 'Only JPG, PNG or WebP images are allowed.', type: 'error' });
-            return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-            setFeedback({ text: 'Project image must be under 5MB.', type: 'error' });
-            return;
-        }
-        if (addImagePreview && addImagePreview.startsWith('blob:')) {
-            URL.revokeObjectURL(addImagePreview);
-        }
-        setAddImageFile(file);
-        setAddImagePreview(URL.createObjectURL(file));
-    }
-
-    // Handle file selection for Edit Modal
     function handleEditFileSelect(file) {
         if (!file) return;
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
@@ -191,75 +152,13 @@ export default function ProjectsAdminPage() {
             const data = await res.json();
             if (data.success) {
                 setProjects((prev) => prev.filter((p) => p._id !== id));
-                setFeedback({ text: `Project deleted successfully.`, type: 'success' });
+                setFeedback({ text: 'Project deleted successfully.', type: 'success' });
             } else {
                 setFeedback({ text: data.error || 'Failed to delete project', type: 'error' });
             }
         } catch (err) {
             console.error('Failed to delete project:', err);
             setFeedback({ text: 'Error deleting project', type: 'error' });
-        }
-    }
-
-    async function handleAddProject(e) {
-        e.preventDefault();
-        if (!addImageFile && (!addUseManual || !addManualImage.trim())) {
-            setFeedback({ text: 'Please select a project image file to upload.', type: 'error' });
-            return;
-        }
-
-        setSubmitting(true);
-        setFeedback({ text: '', type: '' });
-
-        try {
-            const body = new FormData();
-            body.append('title', formData.title.trim());
-            body.append('category', formData.category.trim());
-            body.append('location', formData.location.trim());
-            body.append('description', formData.description.trim());
-            body.append('longDescription', formData.longDescription.trim());
-            body.append('order', String(formData.order ?? 0));
-            body.append('published', String(formData.published));
-
-            if (addImageFile) {
-                body.append('imageFile', addImageFile);
-            } else if (addUseManual && addManualImage.trim()) {
-                body.append('image', addManualImage.trim());
-            }
-
-            const res = await fetch('/api/admin/projects', {
-                method: 'POST',
-                body,
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                setProjects((prev) => [data.project, ...prev]);
-                setShowAddModal(false);
-                setFormData({
-                    title: '',
-                    category: 'Precast Boundary Walls',
-                    location: '',
-                    description: '',
-                    longDescription: '',
-                    order: 0,
-                    published: true,
-                });
-                if (addImagePreview && addImagePreview.startsWith('blob:')) {
-                    URL.revokeObjectURL(addImagePreview);
-                }
-                setAddImageFile(null);
-                setAddImagePreview('');
-                setAddManualImage('');
-                setAddUseManual(false);
-                setFeedback({ text: 'Project created and image saved successfully!', type: 'success' });
-            } else {
-                setFeedback({ text: data.error || 'Failed to add project', type: 'error' });
-            }
-        } catch (err) {
-            setFeedback({ text: 'Error adding project: ' + err.message, type: 'error' });
-        } finally {
-            setSubmitting(false);
         }
     }
 
@@ -321,21 +220,13 @@ export default function ProjectsAdminPage() {
                     <span>Projects Portfolio</span>
                 </h1>
 
-                <div className="flex items-center gap-2">
-                    <Link
-                        href="/admin/form-panel"
-                        className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl border border-slate-700 transition"
-                    >
-                        <span>Multi-Photo Form</span>
-                    </Link>
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold bg-yellow-400 hover:bg-yellow-300 text-slate-950 px-3.5 py-2 rounded-xl transition shadow-lg shadow-yellow-400/10 cursor-pointer shrink-0"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Project</span>
-                    </button>
-                </div>
+                <Link
+                    href="/admin/form-panel"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold bg-yellow-400 hover:bg-yellow-300 text-slate-950 px-3.5 py-2 rounded-xl transition shadow-lg shadow-yellow-400/10 cursor-pointer shrink-0"
+                >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Project</span>
+                </Link>
             </div>
 
             {feedback.text && (
@@ -360,7 +251,7 @@ export default function ProjectsAdminPage() {
                 </div>
             ) : projects.length === 0 ? (
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-400 text-xs">
-                    No projects found. Click "Add Project" to add your first portfolio item.
+                    No projects found. Click "Add Project" to upload your first portfolio item.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -406,10 +297,10 @@ export default function ProjectsAdminPage() {
                                                     <span>DB</span>
                                                 </span>
                                             )}
-                                            {!isFallback && proj.image?.startsWith('projects/') && (
+                                            {!isFallback && proj.image && (proj.image.startsWith('projects/') || proj.image.startsWith('/')) && (
                                                 <span
                                                     className="bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded backdrop-blur flex items-center gap-1"
-                                                    title="Saved in Supabase Storage"
+                                                    title="Stored in Supabase Storage"
                                                 >
                                                     <Cloud className="w-2.5 h-2.5" />
                                                     <span>Storage</span>
@@ -479,229 +370,7 @@ export default function ProjectsAdminPage() {
                 </div>
             )}
 
-            {/* Add Project Modal */}
-            {showAddModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
-                    <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-2xl">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h2 className="text-base font-bold text-white flex items-center gap-2">
-                                <Plus className="w-4 h-4 text-yellow-400" />
-                                <span>Add New Project Portfolio Item</span>
-                            </h2>
-                            <button
-                                onClick={() => setShowAddModal(false)}
-                                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleAddProject} className="space-y-3.5 text-xs">
-                            <div>
-                                <label className="block text-slate-300 font-semibold mb-1">Project Title *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="e.g. Industrial Factory Boundary Wall"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-slate-300 font-semibold mb-1">Category *</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        list="category-suggestions"
-                                        placeholder="e.g. Precast Boundary Walls"
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400"
-                                    />
-                                    <datalist id="category-suggestions">
-                                        {COMMON_CATEGORIES.map((cat) => (
-                                            <option key={cat} value={cat} />
-                                        ))}
-                                    </datalist>
-                                </div>
-                                <div>
-                                    <label className="block text-slate-300 font-semibold mb-1">Location *</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        placeholder="e.g. Bhiwadi Industrial Zone, Rajasthan"
-                                        value={formData.location}
-                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Project Image Upload */}
-                            <div className="space-y-1.5">
-                                <div className="flex items-center justify-between">
-                                    <label className="block text-slate-300 font-semibold">Cover Image *</label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setAddUseManual(!addUseManual)}
-                                        className="text-[11px] text-yellow-400 hover:text-yellow-300 underline"
-                                    >
-                                        {addUseManual ? 'Switch to file upload' : 'Enter URL / filename instead'}
-                                    </button>
-                                </div>
-
-                                {!addUseManual ? (
-                                    <div>
-                                        <input
-                                            type="file"
-                                            ref={addFileInputRef}
-                                            accept="image/jpeg,image/png,image/webp"
-                                            onChange={(e) => handleAddFileSelect(e.target.files?.[0])}
-                                            className="hidden"
-                                        />
-
-                                        {addImagePreview ? (
-                                            <div className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-950 p-2 flex items-center gap-3">
-                                                <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-slate-900 shrink-0">
-                                                    <img
-                                                        src={addImagePreview}
-                                                        alt="Upload preview"
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                </div>
-                                                <div className="grow min-w-0">
-                                                    <p className="text-white font-medium truncate text-xs">
-                                                        {addImageFile?.name}
-                                                    </p>
-                                                    <p className="text-slate-400 text-[10px] mt-0.5">
-                                                        {(addImageFile?.size / 1024).toFixed(1)} KB • Ready to save
-                                                    </p>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        if (addImagePreview.startsWith('blob:')) URL.revokeObjectURL(addImagePreview);
-                                                        setAddImageFile(null);
-                                                        setAddImagePreview('');
-                                                        if (addFileInputRef.current) addFileInputRef.current.value = '';
-                                                    }}
-                                                    className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg shrink-0"
-                                                >
-                                                    <X className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div
-                                                onClick={() => addFileInputRef.current?.click()}
-                                                onDragOver={(e) => e.preventDefault()}
-                                                onDrop={(e) => {
-                                                    e.preventDefault();
-                                                    handleAddFileSelect(e.dataTransfer.files?.[0]);
-                                                }}
-                                                className="border-2 border-dashed border-slate-700 hover:border-yellow-400/70 bg-slate-950/60 hover:bg-slate-950 rounded-xl p-4 text-center cursor-pointer transition group"
-                                            >
-                                                <UploadCloud className="w-7 h-7 mx-auto text-slate-500 group-hover:text-yellow-400 transition mb-1.5" />
-                                                <p className="text-slate-300 font-semibold text-xs">
-                                                    Click to select or drag & drop project cover photo
-                                                </p>
-                                                <p className="text-slate-500 text-[10px] mt-0.5">
-                                                    JPG, PNG, or WebP (max 5MB) • Saves directly to storage
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. projects/project-photo.webp or full Supabase URL"
-                                        value={addManualImage}
-                                        onChange={(e) => setAddManualImage(e.target.value)}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400 font-mono text-xs"
-                                    />
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-slate-300 font-semibold mb-1">Short Description</label>
-                                <textarea
-                                    rows={2}
-                                    placeholder="Brief summary of the installation, height, boundary length..."
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400 resize-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-slate-300 font-semibold mb-1">Long Description (Optional)</label>
-                                <textarea
-                                    rows={3}
-                                    placeholder="In-depth project breakdown, client challenges, technical specifications..."
-                                    value={formData.longDescription}
-                                    onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400 text-xs"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-slate-300 font-semibold mb-1">Display Order</label>
-                                    <input
-                                        type="number"
-                                        value={formData.order}
-                                        onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-hidden focus:border-yellow-400"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2 pt-2 sm:pt-6">
-                                    <input
-                                        type="checkbox"
-                                        id="projectPublished"
-                                        checked={formData.published}
-                                        onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                                        className="rounded border-slate-700 bg-slate-950 text-yellow-400 focus:ring-yellow-400"
-                                    />
-                                    <label htmlFor="projectPublished" className="text-slate-300 font-semibold cursor-pointer">
-                                        Publish Immediately
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddModal(false)}
-                                    className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold cursor-pointer"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="px-4 py-2 rounded-lg bg-yellow-400 text-slate-950 hover:bg-yellow-300 font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                                >
-                                    {submitting ? (
-                                        <>
-                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                            <span>Saving Project...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle2 className="w-3.5 h-3.5" />
-                                            <span>Save Project</span>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Edit Project Modal */}
+            {/* Edit Project Modal Only */}
             {showEditModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
                     <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-2xl">
